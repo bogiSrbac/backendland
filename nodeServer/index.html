@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <title>Hocus Tower</title>
+    <link rel="stylesheet" href="hocusMain.css">
+    <style>
+        .messanger{
+    width: 350px;
+    height: 250px;
+    text-align: center;
+    padding: 0.5rem 1rem 0.5rem 0.5rem;}
+        .warrning{
+    display: none;
+    }
+
+        #warrning{
+        display: block;
+    }
+
+
+
+    </style>
+</head>
+<body>
+<div class="container-fluid text-primary text-center mt-4">
+    <!--    message who won game-->
+    <div class="win">
+        <h2 class="winH"></h2>
+    </div>
+    <h3 class="text-uppercase text-center">hocus tower</h3>
+    <div class="row">
+        <div class="col">
+          <p class="text-success">Hocus tower defender <span id="newHocusPlayer"></span></p>
+        </div>
+        <div class="col">
+          <p class="text-success">Tower health <span id="hocusTowerHealth"></span> points</p>
+        </div>
+        <div class="col">
+          <p class="text-success">Attack points generated <span id="attackPoints"></span> points</p>
+        </div>
+        <div class="col">
+          <p class="text-success">Shield points generated <span id="shieldPoints"></span> points</p>
+        </div>
+        <div class="col">
+          <p class="text-success">Hocus defense points <span id="defensePoints"></span> points</p>
+        </div>
+        <div class="col">
+          <p class="text-success">Number of defenders <span id="defenderNumb"></span></p>
+        </div>
+  </div>
+    <div class="row mt-5">
+        <div class="col-3">
+          <button type="button" class="btn btn-warning" id="attackBtn">Attack</button>
+        </div>
+        <div class="col-3">
+          <button type="button" class="btn btn-danger" id="shieldBtn">Shield</button>
+        </div>
+        <div class="col-3">
+          <p class="text-success">Pocus health<span id="pocusHealth"></span></p>
+        </div>
+  </div>
+    <div class="row mt-5">
+        <div class="col-3 border border-danger ms-5 mb-5" style="width: 200px; height: 70px">
+          <p class="warrning">You are under attack</p>
+        </div>
+  </div>
+    <div class="border border-primary messanger overflow-auto" id="messanger">
+    </div>
+</div>
+
+
+</div>
+
+
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js" integrity="sha384-LzhRnpGmQP+lOvWruF/lgkcqD+WDVt9fU3H4BWmwP5u5LTmkUGafMcpZKNObVMLU" crossorigin="anonymous"></script>
+<!--<script src="server.js"></script>-->
+
+
+
+<script>
+let socket = io('http://localhost:666');
+
+let attackBtn = document.getElementById('attackBtn');
+let shieldBtn = document.getElementById('shieldBtn');
+
+const messanger = document.getElementById('messanger');
+let newHocusPlayer = document.getElementById('newHocusPlayer');
+let towerHealth = document.getElementById('hocusTowerHealth');
+let defenderAttackPoints = document.getElementById('attackPoints');
+let defenderDefencePointsGenerated = document.getElementById('shieldPoints');
+let defensePoints = document.getElementById('defensePoints');
+let win = document.querySelector('.win');
+let winH = document.querySelector('.winH');
+let defenderNumb = document.getElementById('defenderNumb');
+let player;
+let pocusHealth = document.getElementById('pocusHealth');
+let warrning = document.querySelector('.warrning');
+
+
+const addToMessange = (msg)=>{
+    messanger.innerHTML += `<p>${msg}</p>`
+};
+
+const addToUser= (msg, id)=>{
+    player = msg.nickName
+     newHocusPlayer.innerHTML += `<p>${msg.nickName}</p>`;
+     newHocusPlayer.innerHTML += `<p>${id}</p>`;
+     towerHealth.innerHTML = `<p>${msg.towerHealth}</p>`;
+     defenderAttackPoints.innerHTML = `<p>${msg.defenderAttackPoints}</p>`;
+     defenderDefencePointsGenerated.innerHTML = `<p>${msg.defenderDefencePointsGenerated}</p>`;
+
+};
+
+socket.on('nickname', msg=>{
+    if(newHocusPlayer.innerText === ""){
+        addToUser(msg, socket.id)
+        console.log('I got data from database')
+        socket.emit('returnNameClientSide', {'name': msg.nickName, 'id':socket.id})
+    }
+
+});
+
+//warrning about attack from pocus
+socket.on('weAreUnderAttack', msg=>{
+     console.log('we attacked by pocus client')
+    warrning.setAttribute('id', 'warrning');
+    setTimeout(function () {
+        warrning.removeAttribute('id')
+    }, 500)
+})
+
+
+
+socket.on('we_attack', msg=>{
+    addToMessange(msg)
+    });
+
+socket.on('shield', msg=>{
+    addToMessange(msg)
+    });
+
+//who won the round
+socket.on('winMessage', msg=>{
+    win.setAttribute('id', 'win')
+    if(msg.winEnd){
+        winH.innerHTML = `<p>${msg.winEnd}</p>`;
+    }else{
+       winH.innerHTML = `<p>${msg.win}</p>`;
+    }
+    attackBtn.disabled = true;
+    shieldBtn.disabled = true;
+
+    setTimeout(function () {
+         window.location.href = "http://127.0.0.1:8000/hocus/hocus-won/"
+    }, 3000)
+})
+
+//attack points from database response RPC
+socket.on('attackResponse', msg=>{
+    if(player === msg.name){
+        defenderAttackPoints.innerHTML = `<p>${msg.attackPoints}</p>`;
+    }
+})
+//updating health, defense points and count defenders
+socket.on('hocusHealthUpdateClient', msg=>{
+        towerHealth.innerHTML = `<p>${msg.hocusHealth}</p>`;
+        defensePoints.innerHTML = `<p>${msg.hocusDefense}</p>`;
+        defenderNumb.innerHTML = `<p>${msg.defenderHocusCount}</p>`;
+        pocusHealth.innerHTML = `<p class="text-danger">${msg.pocusHealth}</p>`;
+})
+//update shield generated
+socket.on('shieldResponseRoom', msg=>{
+    console.log(player, msg.name, msg)
+    if(msg.name === player){
+        defenderDefencePointsGenerated.innerHTML = `<p>${msg.shieldPoints}</p>`;
+        console.log(player, msg.name, msg)
+    }
+})
+
+
+attackBtn.addEventListener('click', ()=>{
+    attackBtn.disabled = true;
+    socket.emit('attackBtn', {'name': player, 'id':socket.id, 'attack':'attack', 'hocus':'hocus'});
+    setTimeout(()=>{
+        attackBtn.disabled = false
+    }, 1000)
+});
+
+
+shieldBtn.addEventListener('click', ()=>{
+    shieldBtn.disabled = true;
+    attackBtn.disabled = true;
+    socket.emit('attackBtn', {'name': player, 'id':socket.id, 'shield':'shield', 'hocus':'hocus'});
+    setTimeout(()=>{
+        shieldBtn.disabled = false
+        attackBtn.disabled = false
+    }, 2000)
+})
+
+
+
+
+
+
+
+
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

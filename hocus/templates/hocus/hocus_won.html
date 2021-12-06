@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% static 'css/main.css' %}
+{% block content %}
+    <div class="container-fluid border border-secondary p-2 rounded mb-4">
+
+    <h3 class="text-center">Congratulation Hocus</h3>
+    <p>You won this game</p>
+    <ul>
+        <li>Health: {{ hocus.health }}</li>
+        <li>Overall rounds won: {{ hocus.round }}</li>
+    </ul>
+
+    </div>
+
+
+{% endblock content %}
+
+{% block scripts %}
+    <script src="{% static 'js/main.js' %}"></script>
+        {% endblock scripts %}

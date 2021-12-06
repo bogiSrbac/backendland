@@ -1,0 +1,19 @@
+FROM node:16.13.0
+
+WORKDIR /code
+
+ENV PORT 80
+
+COPY nodeServer/json/package.json /code/package.json
+
+RUN npm install
+RUN npm install amqplib
+RUN npm install socket.io
+RUN npm install socket.io-client
+RUN npm install -g nodemon
+
+COPY nodeServer /code
+
+EXPOSE 666
+
+CMD ["node", "server.js", "hocusMessanger.js"]

@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  hocus:
+    build: .
+    volumes:
+      - .:/hocus-server
+    ports:
+      - 666:666
+    image: hocus_tower:hocus-server
+    container_name: hocus-container
+    command: node server.js

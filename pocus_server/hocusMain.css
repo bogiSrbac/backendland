@@ -1,0 +1,17 @@
+.win{
+    display: none;
+}
+#win{
+    display: block;
+    width: 200px;
+    height: 200px;
+    margin: 10px 0px;
+}
+
+.warrning{
+    display: none;
+}
+
+#warrning{
+    display: block;
+}

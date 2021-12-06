@@ -1,0 +1,22 @@
+docker build --tag python-django .
+docker run --publish 8000:8000 python-django
+
+
+stop all containers
+
+docker stop $(docker ps -a -q)
+
+remove all containers
+
+docker rm $(docker ps -a -q)
+remove all images
+
+docker rmi -f $(docker images -a -q)
+
+
+docker-compose build
+
+docker-compose run --rm app django-admin startproject backendland .
+
+docker-compose up
+docker exec -it ime_contejner /bin/bash   /// u drugom win shell

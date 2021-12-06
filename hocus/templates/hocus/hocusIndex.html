@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% static 'css/main.css' %}
+{% block content %}
+    <div class="container-fluid border border-secondary p-2 rounded mb-4">
+
+    <h3 class="text-center">Create your nickname</h3>
+        <form action="" method="post" id="defender">
+            {% csrf_token %}
+             <div class="form-group">
+            {{ form.as_p }}
+             </div>
+             <button type="submit" class="btn btn-primary" id="defenderBtn">Submit</button>
+        </form>
+    </div>
+    <div class="alert border border-danger border-round" id="alert" style="display: none">
+
+    </div>
+
+
+{% endblock content %}
+
+{% block scripts %}
+    <script src="{% static 'js/main.js' %}"></script>
+        {% endblock scripts %}

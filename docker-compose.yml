@@ -1,0 +1,101 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    environment:
+      RABBITMQ_DEFAULT_USER: bogi
+      RABBITMQ_DEFAULT_PASS: bogi
+    restart: always
+    ports:
+      - 5672:5672
+      - 8080:8080
+      - 15672:15672
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://rabbitmq:5672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  db:
+    image: postgres:14-alpine
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    container_name: postgers_db
+
+  app:
+    build:
+      context: .
+    restart: on-failure
+    volumes:
+      - .:/django
+    ports:
+      - 8000:8000
+    image: app:backenland
+    container_name: backendland_django_container
+    command: >
+          sh -c "python -m pip install --upgrade pip &&
+                 python manage.py collectstatic --noinput &&
+                 python manage.py makemigrations &&
+                 python manage.py migrate &&
+                 python manage.py runserver 0.0.0.0:8000 &&
+                 python receiver2.py"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_SSL=prefer
+#      - RABBITMQ_SERVER=rabbitmq
+    depends_on:
+      - db
+      - rabbitmq
+    links: [rabbitmq]
+
+  hocus:
+    build:
+      context: .
+      dockerfile: Dockerfile.hocus
+    volumes:
+      - .:/hocus-server
+    ports:
+      - 666:666
+    restart: on-failure
+    image: hocus_tower:hocus-server
+    command: >
+      sh -c "node server.js &
+             node hocusMessanger.js"
+    environment:
+      RABBITMQ_SERVER: rabbitmq
+    depends_on:
+      - rabbitmq
+    links: [rabbitmq]
+
+
+  pocus:
+    build:
+      context: .
+      dockerfile: Dockerfile.pocus
+    volumes:
+      - .:/pocus-server
+    ports:
+      - 3000:3000
+    restart: on-failure
+    image: pocuss_tower:pocus-server
+    command: >
+      sh -c "node server.js &
+             node pocusMessanger.js"
+    environment:
+      RABBITMQ_SERVER: rabbitmq
+    depends_on:
+      - rabbitmq
+    links: [rabbitmq]
+
+
+
