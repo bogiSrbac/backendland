@@ -88,9 +88,6 @@ function checkIfPlayerInList(list, name) {
 
 
 
-// function setRoomData(list, players, names, ids) {
-//     list[players.at(-1)] = 'name':names.at(-1)
-// }
 
 
 
@@ -155,54 +152,7 @@ amqp.connect('amqp://bogi:bogi@rabbitmq:5672', function(error0, connection) {
   });
 });
 
-// amqp.connect('amqp://localhost', function(error0, connection) {
-//       if (error0) {
-//         throw error0;
-//       }
-//   connection.createChannel(function(error1, channel) {
-//     if (error1) {
-//       throw error1;
-//     }
-//     var queue = 'sendData';
-//
-//     channel.assertQueue(queue, {
-//       durable: false
-//     });
-//     console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
-//
-//         channel.consume(queue, function(msg) {
-//             var json = String.fromCharCode.apply(String, msg.content);
-//             let nick = JSON.parse(json);
-//
-//             console.log(nick)
-//             setTimeout(function () {
-//                     if(typeof nick.nickName !== 'undefined'){
-//                socket.emit('nick', nick);
-//                socket.on('idToList', msg=>{
-//         })
-//             }else if(nick.shieldPoints){
-//                         socket.emit('shieldResponse', nick.shieldPoints)
-//                         console.log(nick.shieldPoints)
-//
-//
-//                     }
-//                     else if (nick.attackPoints){
-//                         socket.emit('attackResponse1', nick);
-//
-//                     }else if(nick.hocusHealth){
-//                         socket.emit('hocusHealthUpdate', nick)
-//                     }else if(nick.win){
-//                         socket.emit('win', nick)
-//                     }
-//             }, 1000)
-//
-//         }, {
-//             noAck: true
-//         });
-//
-//   });
-//
-// });
+
 
 
 
